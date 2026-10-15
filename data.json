@@ -1,0 +1,42 @@
+{
+  "reviews": [
+    {
+      "id": 1,
+      "title": "Возвращение легенды",
+      "artist": "The Soundwaves",
+      "album": "Midnight Echoes",
+      "text": "Этот альбом стал настоящим открытием года. Атмосферные гитары и глубокие тексты создают неповторимое настроение.",
+      "rating": 9.5,
+      "comments": []
+    },
+    {
+      "id": 2,
+      "title": "Эксперименты со звуком",
+      "artist": "Neon Pulse",
+      "album": "Digital Heart",
+      "text": "Смелый шаг в сторону синти-попа. Не все треки заходят с первого раза, но потенциал огромен.",
+      "rating": 8.0,
+      "comments": []
+    }
+  ],
+  "playlists": [
+    {
+      "id": 1,
+      "title": "Вечерний чилл",
+      "description": "Спокойная музыка для отдыха после тяжелого дня.",
+      "cover": "https://via.placeholder.com/300/9b59b6/ffffff?text=Chill",
+      "tracks": ["Midnight City", "Nightcall", "Teardrop"]
+    },
+    {
+      "id": 2,
+      "title": "Драйв и энергия",
+      "description": "Зарядись энергией с этими мощными рок-хитами.",
+      "cover": "https://via.placeholder.com/300/e74c3c/ffffff?text=Rock",
+      "tracks": ["Back in Black", "Smells Like Teen Spirit", "Bohemian Rhapsody"]
+    }
+  ],
+  "voting": [
+    { "id": 1, "album": "Midnight Echoes", "artist": "The Soundwaves", "votes": 42 },
+    { "id": 2, "album": "Digital Heart", "artist": "Neon Pulse", "votes": 35 }
+  ]
+}
