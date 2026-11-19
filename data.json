@@ -22,17 +22,65 @@
   "playlists": [
     {
       "id": 1,
-      "title": "Вечерний чилл",
-      "description": "Спокойная музыка для отдыха после тяжелого дня.",
+      "title": "Вечерняя тоска",
+      "description": "Спокойная музыка с налётом меланхолизма после тяжелого дня",
       "cover": "https://via.placeholder.com/300/9b59b6/ffffff?text=Chill",
-      "tracks": ["Midnight City", "Nightcall", "Teardrop"]
+      "tracks": [
+        { "name": "1. Pretty Little Things", "src": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_Pretty_Little_Things_74519843.mp3"},
+        { "name": "2. The Moon Will Sing", "src": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_The_Moon_Will_Sing_79475225.mp3"}
+      ]
     },
     {
       "id": 2,
       "title": "Драйв и энергия",
       "description": "Зарядись энергией с этими мощными хитами.",
       "cover": "https://via.placeholder.com/300/e74c3c/ffffff?text=Rock",
-      "tracks": ["Back in Black", "Smells Like Teen Spirit", "Bohemian Rhapsody"]
+      "tracks": [
+        { "name": "Back in Black", "src": "ССЫЛКА_3" },
+        { "name": "Smells Like Teen Spirit", "src": "ССЫЛКА_4" },
+        { "name": "Bohemian Rhapsody", "src": "ССЫЛКА_5" }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Утренний кофе",
+      "description": "Легкие и бодрящие мелодии для продуктивного утра.",
+      "cover": "https://raw.githubusercontent.com/AnnaKarpina/save_img/main/2026-10-05_13-42.png",
+      "tracks": [
+        { "name": "Sunrise", "src": "ССЫЛКА_6" },
+        { "name": "Morning Dew", "src": "ССЫЛКА_7" },
+        { "name": "Coffee Break", "src": "ССЫЛКА_8" }
+      ]
+    }
+  ],
+  "albums": [
+    {
+      "id": 1,
+      "title": "Safe Ship, Harbored",
+      "artist": "The Crane Wives",
+      "year": "2011",
+      "description": "Альбом сочетает акустическую фолк-основу с эмоциональными текстами о любви, уязвимости, внутренней борьбе и поиске себя",
+      "cover": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/saveship.png",
+      "tracks": [
+        { "name": "1. I Aint Done", "src": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_I_Aint_Done_79001361.mp3" },
+        { "name": "2. Counting Sheep", "src": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_Counting_Sheep_79790982.mp3" },
+        { "name": "3. October", "src": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_October_82153951.mp3" },
+        { "name": "4. The Diving Bell", "src": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The Crane Wives — The Diving Bell.mp3" }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Foxlore",
+      "artist": "The Crane Wives",
+      "year": "2016",
+      "description": "Альбом сочетает фирменный многоголосный фолк-рок группы с более плотным, электрическим и экспериментальным звучанием. В треках встречаются элементы джаза, психоделической балладности, оркестрового софт-рока и гаражного рока",
+      "cover": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/Foxlore.jpg",
+      "tracks": [
+        { "name": "1. Down the River", "src": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_Down_the_River_74519838.mp3" },
+        { "name": "2. I Talk in My Sleep", "src": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_I_Talk_in_My_Sleep_74519837.mp3" },
+        { "name": "3. Nothing at All", "src": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_Nothing_at_All_74519836.mp3" },
+        { "name": "4. Turn out the Lights", "src": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_Turn_out_the_Lights_74519842.mp3" }
+      ]
     }
   ],
   "voting": [
