@@ -245,14 +245,14 @@ main {
 /* Каждый плейлист — «карточка» из двух колонок */
 .playlist-block {
   display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 2rem;
+  grid-template-columns: 180px 1fr;   /* было 300px */
+  gap: 1.5rem;
   background: var(--card-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
   border-radius: 24px;
-  padding: 1.5rem;
+  padding: 1.25rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
@@ -274,8 +274,10 @@ main {
 .playlist-cover-wrap {
   position: relative;
   width: 100%;
+  max-width: 180px;      /* новая строка */
+  margin: 0 auto;    
   aspect-ratio: 1 / 1;
-  border-radius: 18px;
+  border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(161, 22, 146, 0.3);
   border: 1px solid var(--violet);
@@ -302,7 +304,7 @@ main {
 
 .playlist-title {
   color: var(--pink);
-  font-size: 1.4rem;
+  font-size: 1.15rem;
   margin: 0.3rem 0 0;
   font-weight: 800;
 }
@@ -310,14 +312,14 @@ main {
 .playlist-desc {
   color: var(--lilac);
   opacity: 0.85;
-  font-size: 0.92rem;
+  font-size: 0.82rem;
   margin: 0;
   line-height: 1.4;
 }
 
 .playlist-count {
   color: var(--violet);
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.5px;
   margin: 0;
@@ -351,32 +353,34 @@ main {
 
 .playlist-track {
   display: flex;
-  flex-direction: column;
+  flex-direction: column;   /* было: row + space-between */
+  align-items: stretch;
   gap: 0.5rem;
-  padding: 0.9rem 1rem;
-  margin-bottom: 0.8rem;
-  border-radius: 16px;
-  background: rgba(23, 24, 59, 0.45);
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 0.6rem;
+  border-radius: 14px;
+  background: rgba(23,24,59,0.35);
   border: 1px solid transparent;
-  transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
-  cursor: default;
+  transition: all 0.25s;
 }
 
 .playlist-track:hover {
-  background: rgba(161, 22, 146, 0.2);
+  background: rgba(161,22,146,0.25);
   border-color: var(--violet);
+  /* убираем transform: translateX(4px) — он мешает ширине */
 }
 
-.playlist-track.current-track {
-  background: linear-gradient(90deg, rgba(161, 22, 146, 0.45), rgba(255, 79, 121, 0.25));
-  border-color: var(--pink);
-  box-shadow: 0 0 18px rgba(255, 79, 121, 0.35);
+/* плеер внутри трека — на всю ширину */
+.playlist-track .cp {
+  width: 100%;
+  margin-top: 0.15rem;
 }
 
+/* строка с номером и названием — по-прежнему в ряд */
 .playlist-track-head {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.7rem;
 }
 
 .playlist-track-num {
@@ -416,14 +420,14 @@ main {
 /* Кнопка «Слушать всё» в левой колонке */
 .btn-play-all {
   width: 100%;
-  padding: 0.9rem 1.2rem;
+  padding: 0.7rem 1rem; 
   margin-top: 0.5rem;
   border-radius: 30px;
   border: none;
   cursor: pointer;
   font-family: inherit;
   font-weight: 800;
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #fff;
   background: linear-gradient(135deg, var(--cobalt), var(--pink));
   box-shadow: 0 4px 15px rgba(161, 22, 146, 0.4);
