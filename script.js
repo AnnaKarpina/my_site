@@ -1,11 +1,208 @@
-// Резервные данные
+// ============================================================
+// ГЛОБАЛЬНЫЙ АУДИОМЕНЕДЖЕР
+// Один Audio на весь сайт. Состояние хранится в localStorage,
+// чтобы музыка не прерывалась при переходе между страницами.
+// ============================================================
+const MusicPlayer = (function () {
+  let audio = null;              // единственный Audio-элемент
+  let currentSrc = null;         // текущий URL трека
+  let currentMeta = null;        // { playlistId, trackIndex, name, src, context }
+  let onUpdateCallback = null;   // колбэк для обновления UI
+
+  function getAudio() {
+    if (!audio) {
+      audio = new Audio();
+      audio.preload = 'auto';
+      audio.volume = 1;
+
+      // По окончании трека — сообщаем странице, что можно перейти к следующему
+      audio.addEventListener('ended', () => {
+        if (onUpdateCallback) onUpdateCallback('ended');
+      });
+      audio.addEventListener('play', () => notify());
+      audio.addEventListener('pause', () => notify());
+      audio.addEventListener('error', () => {
+        console.warn('Ошибка загрузки трека:', currentSrc);
+        if (onUpdateCallback) onUpdateCallback('error');
+      });
+      audio.addEventListener('timeupdate', () => {
+        // Обновляем прогресс, если страница подписана
+        if (onUpdateCallback) onUpdateCallback('timeupdate');
+      });
+    }
+    return audio;
+  }
+
+  function notify() {
+    if (onUpdateCallback) onUpdateCallback('state');
+  }
+
+  // Сохранить состояние в localStorage
+  function persist() {
+    try {
+      const state = {
+        meta: currentMeta,
+        currentTime: audio ? audio.currentTime : 0,
+        paused: audio ? audio.paused : true,
+        src: currentSrc
+      };
+      localStorage.setItem('musicPlayerState', JSON.stringify(state));
+    } catch (e) { /* ignore */ }
+  }
+
+  // Восстановить состояние (вызывается на каждой странице при загрузке)
+  function restore() {
+    try {
+      const raw = localStorage.getItem('musicPlayerState');
+      if (!raw) return;
+      const state = JSON.parse(raw);
+      if (!state || !state.src) return;
+
+      currentMeta = state.meta;
+      currentSrc = state.src;
+
+      const a = getAudio();
+      a.src = state.src;
+
+      // Восстанавливаем позицию после загрузки метаданных
+      a.addEventListener('loadedmetadata', function once() {
+        a.removeEventListener('loadedmetadata', once);
+        if (state.currentTime && state.currentTime < a.duration) {
+          a.currentTime = state.currentTime;
+        }
+        // Пытаемся продолжить воспроизведение, если не было паузы
+        if (!state.paused) {
+          a.play().catch(() => {
+            // Браузер заблокировал автозапуск — оставляем на паузе
+            notify();
+          });
+        } else {
+          notify();
+        }
+      });
+
+      // Если метаданные уже есть (кэш) — обрабатываем сразу
+      if (a.readyState >= 1 && a.duration) {
+        if (state.currentTime && state.currentTime < a.duration) {
+          a.currentTime = state.currentTime;
+        }
+        if (!state.paused) {
+          a.play().catch(() => notify());
+        } else {
+          notify();
+        }
+      }
+    } catch (e) {
+      console.warn('Не удалось восстановить состояние плеера:', e);
+    }
+  }
+
+  // Запустить новый трек (останавливает всё остальное — у нас один Audio)
+  function play(meta, src, startTime) {
+    const a = getAudio();
+    // Если тот же трек уже играет — просто продолжим
+    if (currentSrc === src && a && !a.paused) {
+      currentMeta = meta;
+      notify();
+      return;
+    }
+    // Останавливаем текущий и запускаем новый
+    a.pause();
+    a.src = src;
+    currentSrc = src;
+    currentMeta = meta;
+
+    if (startTime && startTime > 0) {
+      a.addEventListener('loadedmetadata', function once() {
+        a.removeEventListener('loadedmetadata', once);
+        if (startTime < a.duration) a.currentTime = startTime;
+      });
+    }
+
+    a.play().then(() => {
+      persist();
+      notify();
+    }).catch((e) => {
+      console.warn('Автовоспроизведение заблокировано:', e);
+      notify();
+    });
+  }
+
+  function toggle() {
+    const a = getAudio();
+    if (!currentSrc) return;
+    if (a.paused) {
+      a.play().catch(() => notify());
+    } else {
+      a.pause();
+    }
+  }
+
+  function pause() {
+    const a = getAudio();
+    if (a && !a.paused) a.pause();
+  }
+
+  function stop() {
+    const a = getAudio();
+    a.pause();
+    a.removeAttribute('src');
+    a.load();
+    currentSrc = null;
+    currentMeta = null;
+    localStorage.removeItem('musicPlayerState');
+    notify();
+  }
+
+  function seek(time) {
+    const a = getAudio();
+    if (a && a.duration) a.currentTime = time;
+  }
+
+  function setVolume(v) {
+    const a = getAudio();
+    a.volume = Math.max(0, Math.min(1, v));
+  }
+
+  function subscribe(cb) {
+    onUpdateCallback = cb;
+  }
+
+  function getState() {
+    const a = getAudio();
+    return {
+      audio: a,
+      src: currentSrc,
+      meta: currentMeta,
+      paused: a ? a.paused : true,
+      currentTime: a ? a.currentTime : 0,
+      duration: a && a.duration ? a.duration : 0
+    };
+  }
+
+  // Сохраняем позицию периодически
+  setInterval(() => {
+    if (audio && currentSrc) persist();
+  }, 1000);
+
+  // Сохраняем при уходе со страницы
+  window.addEventListener('beforeunload', () => {
+    if (audio && currentSrc) persist();
+  });
+
+  return { play, toggle, pause, stop, seek, setVolume, subscribe, getState, restore, persist };
+})();
+
+// ============================================================
+// РЕЗЕРВНЫЕ ДАННЫЕ
+// ============================================================
 const fallbackData = {
   reviews: [
     { id: 1, title: "Возвращение легенды", artist: "The Soundwaves", album: "Midnight Echoes", text: "Атмосферные гитары и глубокие тексты.", rating: 9.5, comments: [] },
     { id: 2, title: "Эксперименты со звуком", artist: "Neon Pulse", album: "Digital Heart", text: "Смелый шаг в сторону синти-попа.", rating: 8.0, comments: [] }
   ],
   playlists: [
-    { id: 1, title: "Вечерняя тоска", description: "Спокойная музыка с налётом меланхолизма после тяжелого дня", cover: "https://raw.githubusercontent.com/AnnaKarpina/save_img/main/2026-10-05_13-42.png", tracks: [{ name: "Pretty Little Things", src: "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_Pretty_Little_Things_74519843.mp3" }, { name: "The Moon_Will Sing", src: "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_The_Moon_Will_Sing_79475225.mp3" }] },
+    { id: 1, title: "Вечерняя тоска", description: "Спокойная музыка с налётом меланхолизма после тяжелого дня", cover: "https://raw.githubusercontent.com/AnnaKarpina/save_img/main/2026-10-05_13-42.png", tracks: [{ name: "Pretty Little Things", src: "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_Pretty_Little_Things_74519843.mp3" }, { name: "The Moon Will Sing", src: "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_The_Moon_Will_Sing_79475225.mp3" }] },
     { id: 2, title: "Драйв и энергия", description: "Мощные рок-хиты.", cover: "https://raw.githubusercontent.com/AnnaKarpina/save_img/main/2026-10-05_13-44.png", tracks: [{ name: "Track A", src: "ССЫЛКА_3" }, { name: "Track B", src: "ССЫЛКА_4" }] },
     { id: 3, title: "Утренний кофе", description: "Легкие мелодии.", cover: "https://raw.githubusercontent.com/AnnaKarpina/save_img/main/2026-10-05_13-42.png", tracks: [{ name: "Sunrise", src: "ССЫЛКА_5" }, { name: "Coffee Break", src: "ССЫЛКА_6" }] }
   ],
@@ -32,19 +229,13 @@ const fallbackData = {
     }
   ],
   voting: [
-    { id: 1, album: "Midnight Echoes", artist: "The Soundwaves", votes: 42 },
-    { id: 2, album: "Foxlore", artist: "The crane wives", votes: 35 }
+    { id: 1, album: "Safe Ship, Harbored", artist: "The Crane Wives", votes: 42 },
+    { id: 2, album: "Foxlore", artist: "The Crane Wives", votes: 35 }
   ]
 };
 
 let appData = fallbackData;
-let currentAlbumIndex = 0; // Индекс текущего альбома
-
-// --- ПЛЕЙЛИСТЫ: состояние воспроизведения ---
-let currentPlaylistId = null;      // ID активного плейлиста
-let currentTrackIndex = 0;          // Индекс текущего трека
-let playlistAudio = null;           // Единственный <audio> элемент для плейлистов
-let isPlaylistPlaying = false;      // Флаг воспроизведения
+let currentAlbumIndex = 0;
 
 async function loadData() {
   try {
@@ -54,6 +245,7 @@ async function loadData() {
     console.log('Используются резервные данные (открыто локально без сервера).');
   }
   initPage();
+  MusicPlayer.restore();
 }
 
 function initPage() {
@@ -65,7 +257,243 @@ function initPage() {
   else if (path.includes('profile.html')) renderProfile();
 }
 
-// --- ЛОГИКА АЛЬБОМОВ ---
+// ============================================================
+// ОБЩИЙ РЕНДЕР КАСТОМНОГО ПЛЕЕРА (используется в альбомах и плейлистах)
+// ============================================================
+function playerHTML(uniqueId, context) {
+  // context: { type: 'album'|'playlist', id, trackIndex, name, src, list }
+  return `
+    <div class="cp" data-player-id="${uniqueId}" data-context-type="${context.type}" data-context-id="${context.id}" data-track-index="${context.trackIndex}">
+      <div class="cp-row">
+        <button class="cp-btn cp-play" onclick="cpToggle(this)" title="Играть/Пауза">
+          <span class="cp-icon">▶</span>
+        </button>
+        <div class="cp-progress-wrap">
+          <div class="cp-progress" onclick="cpSeek(event, this)">
+            <div class="cp-bar"></div>
+          </div>
+          <div class="cp-times">
+            <span class="cp-cur">0:00</span>
+            <span class="cp-dur">0:00</span>
+          </div>
+        </div>
+        <div class="cp-volume-wrap">
+          <span class="cp-vol-icon">🔊</span>
+          <input type="range" class="cp-volume" min="0" max="1" step="0.01" value="1" oninput="cpVolume(this)">
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Обновление всех плееров на странице по глобальному состоянию
+function refreshAllPlayers() {
+  const state = MusicPlayer.getState();
+  const audio = state.audio;
+
+  document.querySelectorAll('.cp').forEach(cp => {
+    const type = cp.dataset.contextType;
+    const id = Number(cp.dataset.contextId);
+    const trackIndex = Number(cp.dataset.trackIndex);
+    const meta = state.meta;
+
+    const isCurrent = meta
+      && meta.contextType === type
+      && Number(meta.contextId) === id
+      && Number(meta.trackIndex) === trackIndex
+      && meta.src === state.src;
+
+    // Кнопка play/pause
+    const btn = cp.querySelector('.cp-play');
+    const icon = cp.querySelector('.cp-icon');
+    if (isCurrent) {
+      cp.classList.add('cp-active');
+      if (audio && !audio.paused) {
+        icon.textContent = '⏸';
+        btn.classList.add('cp-playing');
+      } else {
+        icon.textContent = '▶';
+        btn.classList.remove('cp-playing');
+      }
+    } else {
+      cp.classList.remove('cp-active');
+      icon.textContent = '▶';
+      btn.classList.remove('cp-playing');
+    }
+
+    // Прогресс
+    const bar = cp.querySelector('.cp-bar');
+    const cur = cp.querySelector('.cp-cur');
+    const dur = cp.querySelector('.cp-dur');
+    if (isCurrent && audio) {
+      const d = audio.duration || 0;
+      const t = audio.currentTime || 0;
+      bar.style.width = d ? `${(t / d) * 100}%` : '0%';
+      cur.textContent = formatTime(t);
+      dur.textContent = formatTime(d);
+    } else {
+      bar.style.width = '0%';
+      cur.textContent = '0:00';
+      dur.textContent = '0:00';
+    }
+  });
+
+  // Подсветка активного трека в списках плейлистов
+  document.querySelectorAll('.playlist-track').forEach(li => {
+    const plId = Number(li.dataset.playlistId);
+    const idx = Number(li.dataset.trackIndex);
+    const meta = state.meta;
+    if (meta && meta.contextType === 'playlist' && Number(meta.contextId) === plId && Number(meta.trackIndex) === idx) {
+      li.classList.add('current-track');
+    } else {
+      li.classList.remove('current-track');
+    }
+  });
+}
+
+function formatTime(sec) {
+  if (!sec || isNaN(sec)) return '0:00';
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+// === Управление плеером из UI ===
+function cpToggle(btn) {
+  const cp = btn.closest('.cp');
+  const type = cp.dataset.contextType;
+  const id = Number(cp.dataset.contextId);
+  const trackIndex = Number(cp.dataset.trackIndex);
+  const state = MusicPlayer.getState();
+  const meta = state.meta;
+
+  const isCurrent = meta
+    && meta.contextType === type
+    && Number(meta.contextId) === id
+    && Number(meta.trackIndex) === trackIndex
+    && meta.src === state.src;
+
+  if (isCurrent) {
+    MusicPlayer.toggle();
+    return;
+  }
+
+  // Запускаем трек заново из этого плеера
+  const track = getTrackByContext(type, id, trackIndex);
+  if (!track) return;
+  MusicPlayer.play({
+    contextType: type,
+    contextId: id,
+    trackIndex: trackIndex,
+    name: track.name,
+    src: track.src,
+    list: getListByContext(type, id)
+  }, track.src);
+}
+
+function cpSeek(event, el) {
+  const cp = el.closest('.cp');
+  const rect = el.getBoundingClientRect();
+  const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+  const state = MusicPlayer.getState();
+  // Ищем, текущий ли это плеер
+  const type = cp.dataset.contextType;
+  const id = Number(cp.dataset.contextId);
+  const trackIndex = Number(cp.dataset.trackIndex);
+  const meta = state.meta;
+  const isCurrent = meta
+    && meta.contextType === type
+    && Number(meta.contextId) === id
+    && Number(meta.trackIndex) === trackIndex;
+  if (isCurrent && state.audio && state.audio.duration) {
+    MusicPlayer.seek(ratio * state.audio.duration);
+  }
+}
+
+function cpVolume(input) {
+  MusicPlayer.setVolume(Number(input.value));
+}
+
+// Получить трек по контексту
+function getTrackByContext(type, id, index) {
+  if (type === 'album') {
+    const album = appData.albums.find(a => a.id === id);
+    return album ? album.tracks[index] : null;
+  }
+  if (type === 'playlist') {
+    const pl = appData.playlists.find(p => p.id === id);
+    return pl ? pl.tracks[index] : null;
+  }
+  return null;
+}
+
+function getListByContext(type, id) {
+  if (type === 'album') {
+    const album = appData.albums.find(a => a.id === id);
+    return album ? album.tracks : [];
+  }
+  if (type === 'playlist') {
+    const pl = appData.playlists.find(p => p.id === id);
+    return pl ? pl.tracks : [];
+  }
+  return [];
+}
+
+// Обработчик событий от MusicPlayer (переход к следующему треку и т.д.)
+MusicPlayer.subscribe((reason) => {
+  refreshAllPlayers();
+
+  if (reason === 'ended') {
+    // Переход к следующему треку в том же контексте
+    const state = MusicPlayer.getState();
+    const meta = state.meta;
+    if (!meta) return;
+    const list = meta.list || getListByContext(meta.contextType, meta.contextId);
+    const nextIndex = Number(meta.trackIndex) + 1;
+    if (nextIndex < list.length) {
+      const next = list[nextIndex];
+      MusicPlayer.play({
+        contextType: meta.contextType,
+        contextId: meta.contextId,
+        trackIndex: nextIndex,
+        name: next.name,
+        src: next.src,
+        list: list
+      }, next.src);
+    } else {
+      // Плейлист/альбом закончился — сбрасываем состояние
+      MusicPlayer.stop();
+    }
+  } else if (reason === 'error') {
+    // При ошибке — пропускаем трек
+    const state = MusicPlayer.getState();
+    const meta = state.meta;
+    if (!meta) return;
+    const list = meta.list || getListByContext(meta.contextType, meta.contextId);
+    const nextIndex = Number(meta.trackIndex) + 1;
+    if (nextIndex < list.length) {
+      const next = list[nextIndex];
+      setTimeout(() => {
+        MusicPlayer.play({
+          contextType: meta.contextType,
+          contextId: meta.contextId,
+          trackIndex: nextIndex,
+          name: next.name,
+          src: next.src,
+          list: list
+        }, next.src);
+      }, 300);
+    } else {
+      MusicPlayer.stop();
+    }
+  } else if (reason === 'state' || reason === 'timeupdate') {
+    // уже обновили в refreshAllPlayers
+  }
+});
+
+// ============================================================
+// ЛОГИКА АЛЬБОМОВ
+// ============================================================
 function renderAlbum() {
   const container = document.getElementById('album-container');
   if (!container || !appData.albums || appData.albums.length === 0) return;
@@ -85,16 +513,17 @@ function renderAlbum() {
       <div class="album-tracks">
         <h3>Треклист</h3>
         <ul class="tracklist">
-          ${album.tracks.map(track => `
-            <li>
-              <span>${track.name}</span>
-              <audio controls src="${track.src}"></audio>
+          ${album.tracks.map((track, idx) => `
+            <li class="album-track-li">
+              <span class="album-track-name">${track.name}</span>
+              ${playerHTML(`album-${album.id}-${idx}`, { type: 'album', id: album.id, trackIndex: idx, name: track.name, src: track.src })}
             </li>
           `).join('')}
         </ul>
       </div>
     </article>
   `;
+  refreshAllPlayers();
 }
 
 function switchAlbum() {
@@ -102,9 +531,10 @@ function switchAlbum() {
   currentAlbumIndex = (currentAlbumIndex + 1) % appData.albums.length;
   renderAlbum();
 }
-// -----------------------
 
-// Рендер обзоров
+// ============================================================
+// РЕНДЕР ОБЗОРОВ
+// ============================================================
 function renderReviews() {
   const container = document.getElementById('reviews-container');
   if (!container) return;
@@ -136,174 +566,118 @@ function addComment(event, reviewId) {
   event.preventDefault();
   const form = event.target;
   const comment = { author: form.author.value, text: form.text.value, date: new Date().toLocaleDateString() };
-  
   const userComments = JSON.parse(localStorage.getItem('userComments') || '[]');
   userComments.push({ reviewId, ...comment });
   localStorage.setItem('userComments', JSON.stringify(userComments));
-  
   alert('Комментарий добавлен! (Сохранен локально)');
   form.reset();
 }
 
-// --- РЕНДЕР ПЛЕЙЛИСТОВ (обновлён) ---
+// ============================================================
+// РЕНДЕР ПЛЕЙЛИСТОВ (с выбором любого трека)
+// ============================================================
+// ============================================================
+// РЕНДЕР ПЛЕЙЛИСТОВ — переработанная версия
+// ============================================================
 function renderPlaylists() {
   const container = document.getElementById('playlists-container');
   if (!container) return;
-  container.innerHTML = '<div class="playlists-grid">' + appData.playlists.map(pl => `
-    <div class="playlist-card" id="playlist-card-${pl.id}">
-      <img src="${pl.cover}" alt="${pl.title}">
-      <h3>${pl.title}</h3>
-      <p style="color: var(--lilac); opacity: 0.8; font-size: 0.9rem;">${pl.description}</p>
-      <ul class="track-list">
-        ${pl.tracks.map((t, idx) => `
-          <li class="playlist-track" data-track-index="${idx}">
-            <span class="playlist-track-name">🎵 ${t.name}</span>
-          </li>
-        `).join('')}
-      </ul>
-      <button class="btn-play" id="btn-play-${pl.id}" onclick="togglePlaylist(${pl.id})">▶ Слушать</button>
-      <div class="playlist-now-playing" id="now-playing-${pl.id}" style="display:none;"></div>
-    </div>
-  `).join('') + '</div>';
 
-  // Восстанавливаем состояние, если плейлист уже играл (например, при перерендере)
-  if (currentPlaylistId !== null && playlistAudio) {
-    updatePlaylistUI();
-  }
-}
-
-// Переключение воспроизведения плейлиста
-function togglePlaylist(playlistId) {
-  const playlist = appData.playlists.find(p => p.id === playlistId);
-  if (!playlist) return;
-
-  // Если нажали на тот же плейлист, который уже играет — пауза/продолжение
-  if (currentPlaylistId === playlistId && playlistAudio) {
-    if (playlistAudio.paused) {
-      playlistAudio.play().catch(e => console.warn('Не удалось воспроизвести:', e));
-    } else {
-      playlistAudio.pause();
-    }
-    updatePlaylistUI();
+  if (!appData.playlists || appData.playlists.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:var(--violet);">Плейлистов пока нет.</p>';
     return;
   }
 
-  // Иначе запускаем новый плейлист с первого трека
-  stopPlaylist(); // Останавливаем предыдущий
+  container.innerHTML = '<div class="playlists-stack">' + appData.playlists.map(pl => {
+    const totalTracks = pl.tracks.length;
+    return `
+    <section class="playlist-block" data-playlist-id="${pl.id}">
+      <!-- Левая колонка: обложка + информация + кнопка -->
+      <aside class="playlist-side">
+        <div class="playlist-cover-wrap">
+          <img src="${pl.cover}" alt="${pl.title}" class="playlist-cover" loading="lazy">
+          <div class="playlist-cover-overlay"></div>
+        </div>
+        <h3 class="playlist-title">${pl.title}</h3>
+        <p class="playlist-desc">${pl.description}</p>
+        <p class="playlist-count">${totalTracks} ${pluralTracks(totalTracks)}</p>
+        <button class="btn-play-all" onclick="playPlaylistFromStart(${pl.id})">
+          ▶ Слушать всё
+        </button>
+      </aside>
 
-  currentPlaylistId = playlistId;
-  currentTrackIndex = 0;
+      <!-- Правая колонка: треклист с плеерами -->
+      <div class="playlist-main">
+        <h4 class="playlist-tracks-title">Треклист</h4>
+        <ul class="track-list playlist-tracklist">
+          ${pl.tracks.map((t, idx) => `
+            <li class="playlist-track" data-playlist-id="${pl.id}" data-track-index="${idx}">
+              <div class="playlist-track-head">
+                <span class="playlist-track-num">${idx + 1}</span>
+                <span class="playlist-track-name">${t.name}</span>
+              </div>
+              ${playerHTML(`playlist-${pl.id}-${idx}`, { type: 'playlist', id: pl.id, trackIndex: idx, name: t.name, src: t.src })}
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+    </section>
+  `;
+  }).join('') + '</div>';
 
-  // Создаём новый audio элемент
-  playlistAudio = new Audio();
-  playlistAudio.src = playlist.tracks[currentTrackIndex].src;
-  playlistAudio.volume = 1;
-
-  // Обработчик окончания трека — переход к следующему
-  playlistAudio.addEventListener('ended', () => {
-    playNextTrackInPlaylist();
-  });
-
-  // Обработчик ошибок (например, если ссылка не работает)
-  playlistAudio.addEventListener('error', () => {
-    console.warn(`Не удалось загрузить трек: ${playlist.tracks[currentTrackIndex].name}`);
-    // Пробуем следующий трек
-    setTimeout(() => playNextTrackInPlaylist(), 500);
-  });
-
-  playlistAudio.play().catch(e => console.warn('Не удалось воспроизвести:', e));
-  updatePlaylistUI();
+  refreshAllPlayers();
 }
 
-// Переход к следующему треку в плейлисте
-function playNextTrackInPlaylist() {
-  const playlist = appData.playlists.find(p => p.id === currentPlaylistId);
-  if (!playlist) return;
+// Склонение слова «трек»
+function pluralTracks(n) {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return 'трек';
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'трека';
+  return 'треков';
+}
 
-  currentTrackIndex++;
-  if (currentTrackIndex >= playlist.tracks.length) {
-    // Плейлист закончился — останавливаем
-    stopPlaylist();
+// Запуск плейлиста с определённого трека
+function playPlaylistTrack(playlistId, trackIndex) {
+  const pl = appData.playlists.find(p => p.id === playlistId);
+  if (!pl) return;
+  const track = pl.tracks[trackIndex];
+  if (!track) return;
+
+  const state = MusicPlayer.getState();
+  const meta = state.meta;
+  const isCurrent = meta
+    && meta.contextType === 'playlist'
+    && Number(meta.contextId) === playlistId
+    && Number(meta.trackIndex) === trackIndex;
+
+  if (isCurrent) {
+    MusicPlayer.toggle();
     return;
   }
 
-  if (playlistAudio) {
-    playlistAudio.src = playlist.tracks[currentTrackIndex].src;
-    playlistAudio.play().catch(e => console.warn('Не удалось воспроизвести:', e));
-  }
-  updatePlaylistUI();
+  MusicPlayer.play({
+    contextType: 'playlist',
+    contextId: playlistId,
+    trackIndex: trackIndex,
+    name: track.name,
+    src: track.src,
+    list: pl.tracks
+  }, track.src);
 }
 
-// Остановка текущего плейлиста
-function stopPlaylist() {
-  if (playlistAudio) {
-    playlistAudio.pause();
-    playlistAudio.src = '';
-    playlistAudio = null;
-  }
-  const prevId = currentPlaylistId;
-  currentPlaylistId = null;
-  currentTrackIndex = 0;
-  isPlaylistPlaying = false;
-  if (prevId !== null) updatePlaylistUI();
+// «Слушать всё» — всегда с первого трека
+function playPlaylistFromStart(playlistId) {
+  playPlaylistTrack(playlistId, 0);
 }
 
-// Обновление интерфейса плейлистов (кнопки, подсветка треков, now playing)
-function updatePlaylistUI() {
-  appData.playlists.forEach(pl => {
-    const btn = document.getElementById(`btn-play-${pl.id}`);
-    const card = document.getElementById(`playlist-card-${pl.id}`);
-    const nowPlaying = document.getElementById(`now-playing-${pl.id}`);
-    if (!btn || !card) return;
-
-    // Подсветка активного плейлиста
-    if (pl.id === currentPlaylistId) {
-      card.classList.add('active-playlist');
-
-      // Обновляем текст кнопки
-      if (playlistAudio && !playlistAudio.paused) {
-        btn.textContent = '⏸ Пауза';
-        btn.classList.add('playing');
-      } else {
-        btn.textContent = '▶ Продолжить';
-        btn.classList.remove('playing');
-      }
-
-      // Показываем "сейчас играет"
-      if (nowPlaying) {
-        const track = pl.tracks[currentTrackIndex];
-        nowPlaying.style.display = 'block';
-        nowPlaying.innerHTML = `🎧 Сейчас играет: <strong>${track ? track.name : '—'}</strong>`;
-      }
-
-      // Подсвечиваем текущий трек в списке
-      const trackItems = card.querySelectorAll('.playlist-track');
-      trackItems.forEach((li, idx) => {
-        if (idx === currentTrackIndex) {
-          li.classList.add('current-track');
-        } else {
-          li.classList.remove('current-track');
-        }
-      });
-    } else {
-      card.classList.remove('active-playlist');
-      btn.textContent = '▶ Слушать';
-      btn.classList.remove('playing');
-      if (nowPlaying) nowPlaying.style.display = 'none';
-
-      const trackItems = card.querySelectorAll('.playlist-track');
-      trackItems.forEach(li => li.classList.remove('current-track'));
-    }
-  });
-}
-// -----------------------
-
-// Рендер голосования
+// ============================================================
+// РЕНДЕР ГОЛОСОВАНИЯ
+// ============================================================
 function renderVoting() {
   const container = document.getElementById('voting-container');
   if (!container) return;
   const userVotes = JSON.parse(localStorage.getItem('userVotes') || '{}');
-  
   container.innerHTML = appData.voting.map(item => {
     const currentVotes = userVotes[item.id] || item.votes;
     return `
@@ -325,4 +699,26 @@ function vote(id) {
   document.getElementById(`votes-${id}`).textContent = userVotes[id];
 }
 
+// ============================================================
+// ПРОФИЛЬ
+// ============================================================
+function renderProfile() {
+  const container = document.getElementById('user-comments');
+  if (!container) return;
+  const userComments = JSON.parse(localStorage.getItem('userComments') || '[]');
+  if (userComments.length === 0) {
+    container.innerHTML = '<p>Вы пока не оставляли комментариев.</p>';
+    return;
+  }
+  container.innerHTML = userComments.map(c => `
+    <div class="comment">
+      <strong>${c.author}</strong> <span style="opacity:0.6;font-size:0.85rem;">${c.date || ''}</span>
+      <p style="margin:0.5rem 0 0;">${c.text}</p>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// СТАРТ
+// ============================================================
 document.addEventListener('DOMContentLoaded', loadData);

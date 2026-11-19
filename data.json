@@ -84,7 +84,7 @@
     }
   ],
   "voting": [
-    { "id": 1, "album": "Midnight Echoes", "artist": "The Soundwaves", "votes": 42 },
-    { "id": 2, "album": "Digital Heart", "artist": "Neon Pulse", "votes": 35 }
+    { "id": 1, "album": "Safe Ship, Harbored", "artist": "The Crane Wives", "votes": 42 },
+    { "id": 2, "album": "Foxlore", "artist": "The Crane Wives", "votes": 35 }
   ]
 }
