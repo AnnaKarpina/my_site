@@ -602,13 +602,6 @@ footer {
   position: relative;
 }
 
-.playlist-track.current-track::before {
-  content: "▶ ";
-  color: var(--pink);
-  font-size: 0.9rem;
-  margin-right: 4px;
-}
-
 .playlist-now-playing {
   margin-top: 1rem;
   padding: 0.8rem 1rem;
