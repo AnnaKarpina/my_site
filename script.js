@@ -5,7 +5,7 @@ const fallbackData = {
     { id: 2, title: "Эксперименты со звуком", artist: "Neon Pulse", album: "Digital Heart", text: "Смелый шаг в сторону синти-попа.", rating: 8.0, comments: [] }
   ],
   playlists: [
-    { id: 1, title: "Вечерний чилл", description: "Спокойная музыка для отдыха.", cover: "https://raw.githubusercontent.com/AnnaKarpina/save_img/main/2026-10-05_13-42.png", tracks: [{ name: "Pretty Little Things", src: "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_The_Moon_Will_Sing_79475225.mp3" }, { name: "The Moon_Will Sing", src: "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_The_Moon_Will_Sing_79475225.mp3" }] },
+    { id: 1, title: "Вечерняя тоска", description: "Спокойная музыка с налётом меланхолизма после тяжелого дня", cover: "https://raw.githubusercontent.com/AnnaKarpina/save_img/main/2026-10-05_13-42.png", tracks: [{ name: "Pretty Little Things", src: "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_Pretty_Little_Things_74519843.mp3" }, { name: "The Moon_Will Sing", src: "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_The_Moon_Will_Sing_79475225.mp3" }] },
     { id: 2, title: "Драйв и энергия", description: "Мощные рок-хиты.", cover: "https://raw.githubusercontent.com/AnnaKarpina/save_img/main/2026-10-05_13-44.png", tracks: [{ name: "Track A", src: "ССЫЛКА_3" }, { name: "Track B", src: "ССЫЛКА_4" }] },
     { id: 3, title: "Утренний кофе", description: "Легкие мелодии.", cover: "https://raw.githubusercontent.com/AnnaKarpina/save_img/main/2026-10-05_13-42.png", tracks: [{ name: "Sunrise", src: "ССЫЛКА_5" }, { name: "Coffee Break", src: "ССЫЛКА_6" }] }
   ],

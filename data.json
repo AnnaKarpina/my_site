@@ -26,8 +26,8 @@
       "description": "Спокойная музыка с налётом меланхолизма после тяжелого дня",
       "cover": "https://via.placeholder.com/300/9b59b6/ffffff?text=Chill",
       "tracks": [
-        { "name": "1. Pretty Little Things", "src": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_Pretty_Little_Things_74519843.mp3"},
-        { "name": "2. The Moon Will Sing", "src": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_The_Moon_Will_Sing_79475225.mp3"}
+        { "name": "1. Pretty Little Things", "src": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_Pretty_Little_Things_74519843.mp3" },
+        { "name": "2. The Moon Will Sing", "src": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_The_Moon_Will_Sing_79475225.mp3" }
       ]
     },
     {
