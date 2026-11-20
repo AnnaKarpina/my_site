@@ -2,19 +2,19 @@
   "reviews": [
     {
       "id": 1,
-      "title": "Возвращение легенды",
-      "artist": "The Soundwaves",
-      "album": "Midnight Echoes",
-      "text": "Этот альбом стал настоящим открытием года. Атмосферные гитары и глубокие тексты создают неповторимое настроение.",
+      "title": "I Aint Done",
+      "artist": "The Crane Wives",
+      "album": "Safe Ship, Harbored",
+      "text": "Характерные гитарные партии сочетаются с плотной, ведущей ритм-секцией и басовыми линиями",
       "rating": 9.5,
       "comments": []
     },
     {
       "id": 2,
-      "title": "Эксперименты со звуком",
-      "artist": "Neon Pulse",
-      "album": "Digital Heart",
-      "text": "Смелый шаг в сторону синти-попа. Не все треки заходят с первого раза, но потенциал огромен.",
+      "title": "Down the River",
+      "artist": "The Crane Wives",
+      "album": "The Crane Wives",
+      "text": "Сочетает инди-рок, американу и фолк с более плотным, электрическим звучанием и джем-бэнд настроением",
       "rating": 8.0,
       "comments": []
     }

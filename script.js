@@ -198,8 +198,8 @@ const MusicPlayer = (function () {
 // ============================================================
 const fallbackData = {
   reviews: [
-    { id: 1, title: "Возвращение легенды", artist: "The Soundwaves", album: "Midnight Echoes", text: "Атмосферные гитары и глубокие тексты.", rating: 9.5, comments: [] },
-    { id: 2, title: "Эксперименты со звуком", artist: "Neon Pulse", album: "Digital Heart", text: "Смелый шаг в сторону синти-попа.", rating: 8.0, comments: [] }
+    { id: 1, title: "I Aint Done", artist: "The Crane Wives", album: "Safe Ship, Harbored", text: "Характерные гитарные партии сочетаются с плотной, ведущей ритм-секцией и басовыми линиями", rating: 9.5, comments: [] },
+    { id: 2, title: "Down the River", artist: "The Crane Wives", album: "The Crane Wives", text: "Сочетает инди-рок, американу и фолк с более плотным, электрическим звучанием и джем-бэнд настроением", rating: 8.0, comments: [] }
   ],
   playlists: [
     { id: 1, title: "Вечерняя тоска", description: "Спокойная музыка с налётом меланхолизма после тяжелого дня", cover: "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/play_list1_cover.png", tracks: [{ name: "Pretty Little Things — The Crane Wives", src: "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_Pretty_Little_Things_74519843.mp3" }, { name: "The Moon Will Sing — The Crane Wives", src: "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_The_Moon_Will_Sing_79475225.mp3" }] },
