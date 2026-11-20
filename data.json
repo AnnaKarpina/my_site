@@ -34,11 +34,10 @@
       "id": 2,
       "title": "Драйв и энергия",
       "description": "Зарядись энергией с этими мощными хитами.",
-      "cover": "https://via.placeholder.com/300/e74c3c/ffffff?text=Rock",
+      "cover": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/play_list2_cover.png",
       "tracks": [
-        { "name": "Back in Black", "src": "ССЫЛКА_3" },
-        { "name": "Smells Like Teen Spirit", "src": "ССЫЛКА_4" },
-        { "name": "Bohemian Rhapsody", "src": "ССЫЛКА_5" }
+        { "name": "The Greatest Showman — The other side", "src": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The Greatest Showman — The other side.m4a" },
+        { "name": "The Greatest Showman — The Greatest Show", "src": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The Greatest Showman OST — The Greatest Show.m4a" }
       ]
     },
     {
@@ -47,9 +46,8 @@
       "description": "Легкие и бодрящие мелодии для продуктивного утра.",
       "cover": "https://raw.githubusercontent.com/AnnaKarpina/save_img/main/2026-10-05_13-42.png",
       "tracks": [
-        { "name": "Sunrise", "src": "ССЫЛКА_6" },
-        { "name": "Morning Dew", "src": "ССЫЛКА_7" },
-        { "name": "Coffee Break", "src": "ССЫЛКА_8" }
+        { "name": "Connor Spiotto - The Villain I Appear to Be", "src": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/Connor_Spiotto_-_The_Villain_I_Appear_to_Be_Dimond_Jack_74542114.mp3" },
+        { "name": "Green Apelsin - Северный ветер", "src": "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/Green_Apelsin_-_Severnyjj_veter_73009680.mp3" }
       ]
     }
   ],

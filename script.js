@@ -203,8 +203,8 @@ const fallbackData = {
   ],
   playlists: [
     { id: 1, title: "Вечерняя тоска", description: "Спокойная музыка с налётом меланхолизма после тяжелого дня", cover: "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/play_list1_cover.png", tracks: [{ name: "Pretty Little Things — The Crane Wives", src: "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_Pretty_Little_Things_74519843.mp3" }, { name: "The Moon Will Sing — The Crane Wives", src: "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The_Crane_Wives_-_The_Moon_Will_Sing_79475225.mp3" }] },
-    { id: 2, title: "Драйв и энергия", description: "Мощные рок-хиты.", cover: "https://raw.githubusercontent.com/AnnaKarpina/save_img/main/2026-10-05_13-44.png", tracks: [{ name: "Track A", src: "ССЫЛКА_3" }, { name: "Track B", src: "ССЫЛКА_4" }] },
-    { id: 3, title: "Утренний кофе", description: "Легкие мелодии.", cover: "https://raw.githubusercontent.com/AnnaKarpina/save_img/main/2026-10-05_13-42.png", tracks: [{ name: "Sunrise", src: "ССЫЛКА_5" }, { name: "Coffee Break", src: "ССЫЛКА_6" }] }
+    { id: 2, title: "Драйв и энергия", description: "Мощные рок-хиты.", cover: "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/play_list2_cover.png", tracks: [{ name: "The Greatest Showman — The other side", src: "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The Greatest Showman — The other side.m4a"}, { name: "The Greatest Showman — The Greatest Show", src: "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/The Greatest Showman OST — The Greatest Show.m4a" }] },
+    { id: 3, title: "Утренний кофе", description: "Легкие мелодии.", cover: "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/play_list3_cover.png", tracks: [{ name: "Connor Spiotto - The Villain I Appear to Be", src: "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/Connor_Spiotto_-_The_Villain_I_Appear_to_Be_Dimond_Jack_74542114.mp3"}, { name: "Green Apelsin - Северный ветер", src: "https://raw.githubusercontent.com/AnnaKarpina/my_site/main/Green_Apelsin_-_Severnyjj_veter_73009680.mp3" }] }
   ],
   albums: [
     {
